@@ -1,0 +1,54 @@
+﻿<Window x:Class="UserAuthenticationApp.Views.AdminWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Администратор: Управление пользователями"
+        Height="500" Width="800"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize">
+    <DockPanel>
+
+        <!-- Меню -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Файл">
+                <MenuItem Header="_Выйти" Click="ExitMenuItem_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Справка">
+                <MenuItem Header="_О программе" Click="AboutMenuItem_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Панель инструментов -->
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Button Content="Добавить пользователя" Click="AddUserButton_Click" Margin="5"/>
+                <Button Content="Блокировать/Разблокировать" Click="BlockUnblockButton_Click" Margin="5"/>
+                <Button Content="Ограничения на пароли" Click="TogglePasswordRestrictionsButton_Click" Margin="5"/>
+                <Button Content="Сменить пароль" Click="ChangeAdminPasswordButton_Click" Margin="5"/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <!-- Основное содержимое -->
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Список пользователей -->
+            <ListView Grid.Row="0" x:Name="UsersListView" SelectionMode="Single" Margin="0,10,0,10">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Имя пользователя" DisplayMemberBinding="{Binding Username}" Width="200" />
+                        <GridViewColumn Header="Заблокирован" DisplayMemberBinding="{Binding IsBlocked}" Width="100" />
+                        <GridViewColumn Header="Ограничения на пароль" DisplayMemberBinding="{Binding PasswordRestrictionsEnabled}" Width="150" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <!-- Строка состояния -->
+            <StatusBar Grid.Row="1">
+                <StatusBarItem Content="Управление пользователями" />
+            </StatusBar>
+        </Grid>
+    </DockPanel>
+</Window>

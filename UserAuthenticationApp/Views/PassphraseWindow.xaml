@@ -1,0 +1,21 @@
+﻿<Window x:Class="UserAuthenticationApp.Views.PassphraseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Введите парольную фразу"
+        Height="200" Width="400"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Введите парольную фразу для доступа к данным пользователей:" TextWrapping="Wrap"/>
+        <PasswordBox Grid.Row="1" x:Name="PassphraseBox" Margin="0,10"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+            <Button Content="ОК" Width="80" Margin="10,0" Click="OkButton_Click"/>
+            <Button Content="Отмена" Width="80" Margin="10,0" Click="CancelButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

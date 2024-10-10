@@ -1,0 +1,47 @@
+﻿<Window x:Class="UserAuthenticationApp.Views.NewUserWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Добавить нового пользователя"
+        Height="250" Width="400"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Имя пользователя -->
+        <Label Grid.Row="0" Grid.Column="0" Content="Имя пользователя:" VerticalAlignment="Center"/>
+        <TextBox Grid.Row="0" Grid.Column="1" x:Name="UsernameTextBox" Margin="0,5"/>
+
+        <!-- Пароль -->
+        <Label Grid.Row="1" Grid.Column="0" Content="Пароль:" VerticalAlignment="Center"/>
+        <PasswordBox Grid.Row="1" Grid.Column="1" x:Name="PasswordBox" Margin="0,5"/>
+
+        <!-- Подтверждение пароля -->
+        <Label Grid.Row="2" Grid.Column="0" Content="Подтвердите пароль:" VerticalAlignment="Center"/>
+        <PasswordBox Grid.Row="2" Grid.Column="1" x:Name="ConfirmPasswordBox" Margin="0,5"/>
+
+        <!-- Ограничения на пароли -->
+        <Label Grid.Row="3" Grid.Column="0" Content="Ограничения на пароли:" VerticalAlignment="Center"/>
+        <CheckBox Grid.Row="3" Grid.Column="1" x:Name="RestrictionsCheckBox" Content="Включены" Margin="0,5"/>
+
+        <!-- Кнопки -->
+        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+            <Button Content="Добавить" Width="100" Margin="10,0" Click="AddUserButton_Click"/>
+            <Button Content="Отмена" Width="100" Margin="10,0" Click="CancelButton_Click"/>
+        </StackPanel>
+
+        <!-- Метка для сообщений -->
+        <TextBlock Grid.Row="5" Grid.ColumnSpan="2" x:Name="MessageTextBlock" Foreground="Red" TextWrapping="Wrap" Margin="0,10,0,0" TextAlignment="Center"/>
+    </Grid>
+</Window>
