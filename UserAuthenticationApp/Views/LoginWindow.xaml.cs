@@ -47,25 +47,33 @@ namespace UserAuthenticationApp.Views
 
                 if (isFirstRun)
                 {
-                    // Генерируем IV и соль для первого запуска
+                    // Генерируем IV и соль репозитория для первого запуска
                     _iv = _cryptoService.GenerateIV();
-                    byte[] salt = _cryptoService.GenerateSalt();
-                    _key = _cryptoService.GenerateKey(passphrase, salt);
+                    byte[] repositorySalt = _cryptoService.GenerateSalt();
+                    _key = _cryptoService.GenerateKey(passphrase, repositorySalt);
+                    // Устанавливаем соль и IV у объекта
+                    _userRepository.SetRepositorySalt(repositorySalt);
+                    _userRepository.SetRepositoryIv(_iv);
+                    // Создаем учетную запись администратора с хэшированным пустым паролем
+                    byte[] adminSalt = _cryptoService.GenerateSalt();
+                    byte[] adminPasswordHash = _cryptoService.HashPassword(string.Empty, adminSalt); // Хэш пустого пароля
 
-                    // Создаем учетную запись администратора с пустым паролем
                     var adminUser = new User
                     {
                         Username = "ADMIN",
-                        PasswordHash = new byte[0], // Пустой пароль
-                        Salt = _cryptoService.GenerateSalt(),
+                        PasswordHash = adminPasswordHash, // Хэш пустого пароля
+                        Salt = adminSalt,
                         IsBlocked = false,
                         PasswordRestrictionsEnabled = false
                     };
 
                     _userRepository.AddUser(adminUser);
 
-                    // Сохраняем пользователей с IV и солью
+                    // Сохраняем пользователей с IV и солью репозитория
                     _userRepository.SaveUsers(_key, _iv);
+
+                    // Записываем соль и IV в отдельный файл для отладки
+                    _userRepository.WriteSaltAndIV("salt_iv.txt");
 
                     return true;
                 }
@@ -73,19 +81,25 @@ namespace UserAuthenticationApp.Views
                 {
                     try
                     {
-                        // Считываем IV из файла
+                        // Считываем IV и соль репозитория из файла
                         using (FileStream fs = new FileStream("users.dat", FileMode.Open, FileAccess.Read))
                         {
                             _iv = new byte[16];
                             fs.Read(_iv, 0, _iv.Length);
 
-                            // Считываем соль (в данном случае, она генерируется отдельно, но можно изменить)
-                            byte[] repositorySalt = new byte[16];
-                            fs.Read(repositorySalt, 0, repositorySalt.Length);
+                            byte[] repositorySaltFromFile = new byte[16];
+                            fs.Read(repositorySaltFromFile, 0, repositorySaltFromFile.Length);
 
-                            // Генерируем ключ на основе парольной фразы и соли
-                            _key = _cryptoService.GenerateKey(passphrase, repositorySalt);
+                            // Устанавливаем соль репозитория через метод
+                            _userRepository.SetRepositorySalt(repositorySaltFromFile);
+
+                            _userRepository.SetRepositoryIv(_iv);
+                            // Генерируем ключ на основе парольной фразы и соли репозитория
+                            _key = _cryptoService.GenerateKey(passphrase, repositorySaltFromFile);
                         }
+
+                        // Записываем соль и IV в отдельный файл для отладки
+                        _userRepository.WriteSaltAndIV("salt_iv.txt");
 
                         // Загружаем пользователей
                         _userRepository.LoadUsers(_key, _iv);
@@ -113,11 +127,11 @@ namespace UserAuthenticationApp.Views
             string username = UsernameTextBox.Text.Trim();
             string password = PasswordBox.Password;
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            /*if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 ErrorMessageTextBlock.Text = "Пожалуйста, введите имя пользователя и пароль.";
                 return;
-            }
+            }*/
 
             var user = _userRepository.GetUser(username);
             if (user == null)

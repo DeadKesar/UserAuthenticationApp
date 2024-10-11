@@ -8,14 +8,26 @@
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="Введите парольную фразу для доступа к данным пользователей:" TextWrapping="Wrap"/>
-        <PasswordBox Grid.Row="1" x:Name="PassphraseBox" Margin="0,10"/>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-            <Button Content="ОК" Width="80" Margin="10,0" Click="OkButton_Click"/>
-            <Button Content="Отмена" Width="80" Margin="10,0" Click="CancelButton_Click"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Парольная фраза -->
+        <Label Grid.Row="0" Grid.Column="0" Content="Парольная фраза:" VerticalAlignment="Center"/>
+        <PasswordBox Grid.Row="0" Grid.Column="1" x:Name="PassphraseBox" Margin="0,5"/>
+
+        <!-- Сообщение об ошибке -->
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="ErrorMessageTextBlock" Foreground="Red" TextWrapping="Wrap" Margin="0,10,0,0" TextAlignment="Center"/>
+
+        <!-- Кнопки -->
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+            <Button Content="OK" Width="100" Margin="10,0" Click="OKButton_Click"/>
+            <Button Content="Отмена" Width="100" Margin="10,0" Click="CancelButton_Click"/>
         </StackPanel>
     </Grid>
 </Window>

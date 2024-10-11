@@ -18,17 +18,46 @@ namespace UserAuthenticationApp.Services
         // Имя файла для хранения данных
         private const string FileName = "users.dat";
 
-        // Методы для доступа к пользователям
+        // Соль репозитория
+        private byte[] _repositorySalt;
+
+        // IV для шифрования/расшифровки
+        private byte[] _iv;
+
+        // Публичный метод для установки соли репозитория
+        public void SetRepositorySalt(byte[] repositorySalt)
+        {
+            if (repositorySalt == null || repositorySalt.Length != 16)
+                throw new ArgumentException("Соль должна быть 16 байт.", nameof(repositorySalt));
+
+            _repositorySalt = repositorySalt;
+        }
+        public void SetRepositoryIv(byte[] iv)
+        {
+            if (iv == null || iv.Length != 16)
+                throw new ArgumentException("IV должна быть 16 байт.", nameof(iv));
+
+            _iv = iv;
+        }
+        // Метод для получения соли репозитория
+        public byte[] GetRepositorySalt()
+        {
+            return _repositorySalt;
+        }
+
+        // Метод для получения всех пользователей
         public List<User> GetAllUsers()
         {
             return _users;
         }
 
+        // Метод для получения пользователя по имени
         public User GetUser(string username)
         {
             return _users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Метод для добавления нового пользователя
         public void AddUser(User user)
         {
             if (_users.Any(u => u.Username.Equals(user.Username, StringComparison.OrdinalIgnoreCase)))
@@ -39,6 +68,7 @@ namespace UserAuthenticationApp.Services
             _users.Add(user);
         }
 
+        // Метод для обновления данных пользователя
         public void UpdateUser(User updatedUser)
         {
             var existingUser = GetUser(updatedUser.Username);
@@ -55,6 +85,7 @@ namespace UserAuthenticationApp.Services
             }
         }
 
+        // Метод для удаления пользователя
         public void DeleteUser(string username)
         {
             var user = GetUser(username);
@@ -82,13 +113,18 @@ namespace UserAuthenticationApp.Services
             {
                 using (FileStream fs = new FileStream(FileName, FileMode.Open, FileAccess.Read))
                 {
+                    // Читаем IV из файла
                     byte[] ivFromFile = new byte[16];
                     fs.Read(ivFromFile, 0, ivFromFile.Length);
+                    _iv = ivFromFile; // Устанавливаем IV
 
-                    byte[] saltFromFile = new byte[16];
-                    fs.Read(saltFromFile, 0, saltFromFile.Length);
+                    // Читаем соль репозитория из файла
+                    byte[] repositorySaltFromFile = new byte[16];
+                    fs.Read(repositorySaltFromFile, 0, repositorySaltFromFile.Length);
+                    SetRepositorySalt(repositorySaltFromFile); // Устанавливаем соль репозитория
 
-                    byte[] encryptedData = new byte[fs.Length - ivFromFile.Length - saltFromFile.Length];
+                    // Читаем зашифрованные данные
+                    byte[] encryptedData = new byte[fs.Length - ivFromFile.Length - repositorySaltFromFile.Length];
                     fs.Read(encryptedData, 0, encryptedData.Length);
 
                     // Расшифровываем данные
@@ -111,25 +147,36 @@ namespace UserAuthenticationApp.Services
         {
             try
             {
-                // Сериализуем список пользователей в JSON
-                string json = JsonSerializer.Serialize(_users);
-                byte[] data = Encoding.UTF8.GetBytes(json);
-
-                // Шифруем данные
-                CryptoService crypto = new CryptoService();
-                byte[] encryptedData = crypto.EncryptData(data, key, iv);
-
                 using (FileStream fs = new FileStream(FileName, FileMode.Create, FileAccess.Write))
                 {
-                    // Сохраняем IV и соль в начале файла
+                    CryptoService crypto = new CryptoService();
+
+                    // Если соль репозитория еще не установлена, ловим ошибку, ибо соль репозиторию задаётся на шаге создания репозитория
+                    if (_repositorySalt == null)
+                    {
+                        throw new Exception("У репозитория нет соли");
+                    }
+
+                    // Записываем IV и соль репозитория в начало файла
                     fs.Write(iv, 0, iv.Length);
-                    // Для соли используем salt из первого пользователя (предполагается, что соль одинакова для всех)
-                    // Альтернативно, можно хранить отдельную соль для репозитория
-                    byte[] repositorySalt = crypto.GenerateSalt();
-                    fs.Write(repositorySalt, 0, repositorySalt.Length);
-                    // Сохраняем зашифрованные данные
+                    fs.Write(_repositorySalt, 0, _repositorySalt.Length);
+
+                    // Сериализуем список пользователей в JSON
+                    string json = JsonSerializer.Serialize(_users);
+                    byte[] data = Encoding.UTF8.GetBytes(json);
+
+                    // Шифруем данные
+                    byte[] encryptedData = crypto.EncryptData(data, key, iv);
+
+                    // Записываем зашифрованные данные
                     fs.Write(encryptedData, 0, encryptedData.Length);
                 }
+
+                // Устанавливаем текущий IV
+                _iv = iv;
+
+                // Записываем соль и IV в отдельный файл для отладки или использования
+                WriteSaltAndIV("salt_iv.txt");
             }
             catch (Exception ex)
             {
@@ -171,6 +218,26 @@ namespace UserAuthenticationApp.Services
                 {
                     throw new Exception($"Ошибка при безопасном удалении файла {filePath}: {ex.Message}");
                 }
+            }
+        }
+
+        // Новый метод для записи соли и IV в отдельный файл
+        public void WriteSaltAndIV(string filePath)
+        {
+            if (_repositorySalt == null || _iv == null)
+                throw new InvalidOperationException("Соль репозитория или IV не установлены.");
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(filePath))
+                {
+                    writer.WriteLine("IV: " + BitConverter.ToString(_iv).Replace("-", ""));
+                    writer.WriteLine("RepositorySalt: " + BitConverter.ToString(_repositorySalt).Replace("-", ""));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка при записи соли и IV в файл {filePath}: {ex.Message}");
             }
         }
     }

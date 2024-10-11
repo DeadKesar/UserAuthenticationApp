@@ -9,56 +9,48 @@ namespace UserAuthenticationApp.Views
 {
     public partial class UserWindow : Window
     {
-        private readonly User _currentUser;
+        private readonly User _user;
         private readonly UserRepository _userRepository;
         private readonly CryptoService _cryptoService;
         private readonly byte[] _key;
         private readonly byte[] _iv;
 
-        public UserWindow(User currentUser, UserRepository userRepository, CryptoService cryptoService, byte[] key, byte[] iv)
+        public UserWindow(User user, UserRepository userRepository, CryptoService cryptoService, byte[] key, byte[] iv)
         {
             InitializeComponent();
-            _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
+
+            _user = user ?? throw new ArgumentNullException(nameof(user));
             _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _cryptoService = cryptoService ?? throw new ArgumentNullException(nameof(cryptoService));
             _key = key ?? throw new ArgumentNullException(nameof(key));
             _iv = iv ?? throw new ArgumentNullException(nameof(iv));
         }
 
-        // Обработчик нажатия на кнопку "Сменить пароль"
         private void ChangePasswordButton_Click(object sender, RoutedEventArgs e)
         {
             string oldPassword = OldPasswordBox.Password;
             string newPassword = NewPasswordBox.Password;
             string confirmPassword = ConfirmPasswordBox.Password;
 
-            // Проверка на заполненность полей
-            if (string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
-            {
-                MessageTextBlock.Text = "Все поля должны быть заполнены.";
-                return;
-            }
-
             // Проверка старого пароля
-            var hashedPassword = _cryptoService.HashPassword(oldPassword, _currentUser.Salt);
-            if (!hashedPassword.SequenceEqual(_currentUser.PasswordHash))
+            var hashedOldPassword = _cryptoService.HashPassword(oldPassword, _user.Salt);
+            if (!hashedOldPassword.SequenceEqual(_user.PasswordHash))
             {
-                MessageTextBlock.Text = "Неправильный старый пароль.";
+                MessageTextBlock.Text = "Старый пароль введен неверно.";
                 return;
             }
 
-            // Проверка совпадения нового пароля и подтверждения
+            // Проверка нового пароля и подтверждения
             if (newPassword != confirmPassword)
             {
-                MessageTextBlock.Text = "Новый пароль и подтверждение не совпадают.";
+                MessageTextBlock.Text = "Пароль и подтверждение не совпадают.";
                 return;
             }
 
             // Проверка нового пароля на соответствие требованиям
-            bool restrictionsEnabled = _currentUser.PasswordRestrictionsEnabled;
-            if (!PasswordValidator.ValidatePassword(newPassword, restrictionsEnabled))
+            if (!PasswordValidator.ValidatePassword(newPassword, _user.PasswordRestrictionsEnabled))
             {
-                MessageTextBlock.Text = "Новый пароль не соответствует требованиям.";
+                MessageTextBlock.Text = "Новый пароль не соответствует требованиям. Строчные и прописные буквы и цифры и арифм символы.";
                 return;
             }
 
@@ -73,24 +65,18 @@ namespace UserAuthenticationApp.Views
             byte[] newPasswordHash = _cryptoService.HashPassword(newPassword, newSalt);
 
             // Обновляем данные пользователя
-            _currentUser.Salt = newSalt;
-            _currentUser.PasswordHash = newPasswordHash;
+            _user.Salt = newSalt;
+            _user.PasswordHash = newPasswordHash;
 
-            // Обновление пользователя в репозитории
-            _userRepository.UpdateUser(_currentUser);
+            // Сохраняем изменения
+            _userRepository.UpdateUser(_user);
             _userRepository.SaveUsers(_key, _iv);
 
             // Успешная смена пароля
-            MessageTextBlock.Text = "Пароль успешно изменен.";
-            MessageTextBlock.Foreground = System.Windows.Media.Brushes.Green;
-
-            // Очистка полей
-            OldPasswordBox.Clear();
-            NewPasswordBox.Clear();
-            ConfirmPasswordBox.Clear();
+            MessageBox.Show("Пароль успешно изменен.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            Close();
         }
 
-        // Обработчик нажатия на кнопку "Отмена"
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             Close();

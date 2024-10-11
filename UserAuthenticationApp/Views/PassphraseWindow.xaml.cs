@@ -11,23 +11,23 @@ namespace UserAuthenticationApp.Views
             InitializeComponent();
         }
 
-        private void OkButton_Click(object sender, RoutedEventArgs e)
+        private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(PassphraseBox.Password))
             {
-                MessageBox.Show("Пожалуйста, введите парольную фразу.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ErrorMessageTextBlock.Text = "Парольная фраза не может быть пустой.";
                 return;
             }
 
             Passphrase = PassphraseBox.Password;
-            DialogResult = true;
-            Close();
+            this.DialogResult = true;
+            this.Close();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
-            Close();
+            this.DialogResult = false;
+            this.Close();
         }
     }
 }

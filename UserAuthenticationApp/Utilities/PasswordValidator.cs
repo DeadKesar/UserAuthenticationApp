@@ -30,10 +30,9 @@ namespace UserAuthenticationApp.Utilities
             return hasLowerCase && hasUpperCase && hasDigit && hasSpecialChar;
         }
 
-        // Опционально, метод для проверки длины пароля
+        // Метод для проверки минимальной длины пароля
         public static bool ValidatePasswordLength(string password, int minLength = 8)
         {
-            // Проверяем, что пароль имеет минимально допустимую длину
             return password.Length >= minLength;
         }
     }

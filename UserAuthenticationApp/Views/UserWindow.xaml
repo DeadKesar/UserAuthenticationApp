@@ -34,7 +34,7 @@
         <!-- Кнопки -->
         <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
             <Button Content="Сменить пароль" Width="120" Margin="10,0" Click="ChangePasswordButton_Click"/>
-            <Button Content="Отмена" Width="80" Margin="10,0" Click="CancelButton_Click"/>
+            <Button Content="Отмена" Width="120" Margin="10,0" Click="CancelButton_Click"/>
         </StackPanel>
 
         <!-- Метка для сообщений -->
