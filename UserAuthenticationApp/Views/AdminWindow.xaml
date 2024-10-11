@@ -24,6 +24,9 @@
                 <Button Content="Блокировать/Разблокировать" Click="BlockUnblockButton_Click" Margin="5"/>
                 <Button Content="Ограничения на пароли" Click="TogglePasswordRestrictionsButton_Click" Margin="5"/>
                 <Button Content="Сменить пароль" Click="ChangeAdminPasswordButton_Click" Margin="5"/>
+                <!-- Кнопки для перемещения элементов списка -->
+                <Button Content="Вверх" Click="MoveUpButton_Click" Margin="5"/>
+                <Button Content="Вниз" Click="MoveDownButton_Click" Margin="5"/>
             </ToolBar>
         </ToolBarTray>
 
@@ -34,8 +37,8 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Список пользователей -->
-            <ListView Grid.Row="0" x:Name="UsersListView" SelectionMode="Single" Margin="0,10,0,10">
+            <!-- Список пользователей с возможностью множественного выбора -->
+            <ListView Grid.Row="0" x:Name="UsersListView" SelectionMode="Extended" Margin="0,10,0,10">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Имя пользователя" DisplayMemberBinding="{Binding Username}" Width="200" />
