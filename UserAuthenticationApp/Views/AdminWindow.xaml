@@ -24,9 +24,11 @@
                 <Button Content="Блокировать/Разблокировать" Click="BlockUnblockButton_Click" Margin="5"/>
                 <Button Content="Ограничения на пароли" Click="TogglePasswordRestrictionsButton_Click" Margin="5"/>
                 <Button Content="Сменить пароль" Click="ChangeAdminPasswordButton_Click" Margin="5"/>
+                <Button Content="Сбросить" Click="ResetPasswordButton_Click" Margin="5"/>
                 <!-- Кнопки для перемещения элементов списка -->
                 <Button Content="Вверх" Click="MoveUpButton_Click" Margin="5"/>
                 <Button Content="Вниз" Click="MoveDownButton_Click" Margin="5"/>
+                
             </ToolBar>
         </ToolBarTray>
 

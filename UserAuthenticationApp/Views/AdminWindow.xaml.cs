@@ -158,5 +158,36 @@ namespace UserAuthenticationApp.Views
             _userRepository.SaveUsers(_key, _iv);
             LoadUsers();
         }
+        private void ResetPasswordButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedUsers = UsersListView.SelectedItems.Cast<User>().ToList();
+
+            if (selectedUsers.Any())
+            {
+                foreach (var user in selectedUsers)
+                {
+
+                    // Генерируем новую соль и хешируем пустой пароль
+                    byte[] newSalt = _cryptoService.GenerateSalt();
+                    byte[] newPasswordHash = _cryptoService.HashPassword(string.Empty, newSalt);
+
+                    // Обновляем данные пользователя
+                    user.Salt = newSalt;
+                    user.PasswordHash = newPasswordHash;
+
+                    // Сохраняем обновленного пользователя
+                    _userRepository.UpdateUser(user);
+                }
+
+                _userRepository.SaveUsers(_key, _iv);
+                LoadUsers(); // Перезагружаем список пользователей
+                MessageBox.Show("Пароль(и) успешно сброшены.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Выберите хотя бы одного пользователя.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
     }
 }

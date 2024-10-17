@@ -54,7 +54,7 @@ namespace UserAuthenticationApp.Services
         // Метод для получения пользователя по имени
         public User GetUser(string username)
         {
-            return _users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+            return _users.FirstOrDefault(u => u.Username.Equals(username));
         }
 
         // Метод для добавления нового пользователя
@@ -155,7 +155,7 @@ namespace UserAuthenticationApp.Services
                     if (_repositorySalt == null)
                     {
                         throw new Exception("У репозитория нет соли");
-                    }
+                    }   
 
                     // Записываем IV и соль репозитория в начало файла
                     fs.Write(iv, 0, iv.Length);
